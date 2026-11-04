@@ -1,0 +1,109 @@
+name: Build & Release Android APK
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Publish as a GitHub Release with APK & AAB assets'
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Android Release (APK & AAB)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x frontend/android/gradlew
+
+      - name: Cache Gradle Build Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('frontend/android/gradle/wrapper/gradle-wrapper.properties') }}-${{ hashFiles('frontend/android/**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build Release APK
+        working-directory: frontend/android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Build Release AAB (Play Store Bundle)
+        working-directory: frontend/android
+        run: ./gradlew bundleRelease --no-daemon --stacktrace
+
+      - name: Stage Artifacts
+        run: |
+          mkdir -p dist
+          cp frontend/android/app/build/outputs/apk/release/app-release.apk dist/Kharcho-Release.apk
+          cp frontend/android/app/build/outputs/bundle/release/app-release.aab dist/Kharcho-Release.aab
+          echo "Build completed successfully."
+          ls -la dist/
+
+      - name: Upload Artifacts to GitHub Action
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kharcho-Android-Build
+          path: dist/*
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release == true)
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/Kharcho-Release.apk
+            dist/Kharcho-Release.aab
+          name: Kharcho Release ${{ github.ref_name }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'latest' }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## Kharcho (खर्चो) Android Release
+            
+            ### 📦 Download Assets
+            - **[Kharcho-Release.apk](https://github.com/${{ github.repository }}/releases/download/${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'latest' }}/Kharcho-Release.apk)** (Direct standalone Android install)
+            - **[Kharcho-Release.aab](https://github.com/${{ github.repository }}/releases/download/${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'latest' }}/Kharcho-Release.aab)** (Google Play Store Bundle)
+            
+            ### ✨ Features Included
+            - 100% Offline-first privacy architecture
+            - Deterministic Indian bank SMS parsing (SBI, HDFC, ICICI, Axis, Kotak, Baroda, PNB, Paytm, PhonePe, GPay, CRED, UPI Lite)
+            - Warm Clay visual design with 3D gold coin assets
+            - Real-time incoming transaction SMS detection

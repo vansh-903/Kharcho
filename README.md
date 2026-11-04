@@ -3,6 +3,13 @@
 <div align="center">
   <img src="docs/assets/kharcho-logo-concept.png" width="160" alt="Kharcho Logo" />
   <p><strong>Turn bank transaction SMS into private, actionable spending insights — 100% on-device.</strong></p>
+  
+  <p>
+    <a href="https://github.com/vansh-903/Kharcho/actions/workflows/android-release.yml"><img src="https://github.com/vansh-903/Kharcho/actions/workflows/android-release.yml/badge.svg" alt="Build Status" /></a>
+    <a href="https://github.com/vansh-903/Kharcho/releases"><img src="https://img.shields.io/github/v/release/vansh-903/Kharcho?color=2D5A3D&label=APK%20Download" alt="Download APK" /></a>
+    <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white" alt="Platform Android" />
+    <img src="https://img.shields.io/badge/Privacy-100%25%20Offline-143825" alt="100% Offline" />
+  </p>
 </div>
 
 ---
@@ -55,8 +62,8 @@ The UI is designed according to the Kharcho Design Specification (`docs/DESIGN_S
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/vansh-903/kharcho.git
-   cd kharcho
+   git clone https://github.com/vansh-903/Kharcho.git
+   cd Kharcho
    ```
 
 2. **Install frontend dependencies:**
@@ -89,21 +96,20 @@ The UI is designed according to the Kharcho Design Specification (`docs/DESIGN_S
 
 ## 📦 Building a Release APK / AAB for Deployment
 
-To generate a standalone APK or Android App Bundle (AAB) for deployment:
+### 1. Automated via GitHub Actions (Recommended)
+Every commit to `main` or release tag triggers the automated build pipeline in `.github/workflows/android-release.yml`. You can download the latest generated APK directly from the **[GitHub Actions Artifacts](https://github.com/vansh-903/Kharcho/actions)** or the **[Releases](https://github.com/vansh-903/Kharcho/releases)** tab.
 
-1. **Generate a signing key** (if not using debug key):
-   ```bash
-   keytool -genkeypair -v -storetype PKCS12 -keystore kharcho-release.keystore -alias kharcho-key -keyalg RSA -keysize 2048 -validity 10000
-   ```
+### 2. Manual Local Build
+To generate a standalone APK or Android App Bundle (AAB) on your development machine:
 
-2. **Build Release APK:**
+1. **Build Release APK:**
    ```bash
    cd frontend/android
    ./gradlew assembleRelease
    ```
    Output: `frontend/android/app/build/outputs/apk/release/app-release.apk`
 
-3. **Build Release Android App Bundle (AAB for Google Play):**
+2. **Build Release Android App Bundle (AAB for Google Play):**
    ```bash
    cd frontend/android
    ./gradlew bundleRelease
@@ -116,6 +122,9 @@ To generate a standalone APK or Android App Bundle (AAB) for deployment:
 
 ```text
 Kharcho/
+├── .github/
+│   └── workflows/
+│       └── android-release.yml # Automated CI/CD APK & AAB builder
 ├── docs/
 │   ├── assets/                 # Brand assets, 3D coin renders, storyboard
 │   ├── PRD.md                  # Product Requirements Document
