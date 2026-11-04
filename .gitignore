@@ -1,0 +1,75 @@
+# Dependencies
+node_modules/
+*/node_modules/
+package-lock.json.bak
+.pnp
+.pnp.js
+
+# React Native & Metro
+.metro-health-check*
+*.jsbundle
+frontend/.metro-health-check*
+
+# Android Build Outputs & IDE
+.gradle/
+*/.gradle/
+**/.gradle/
+build/
+*/build/
+**/build/
+app/build/
+frontend/android/app/build/
+frontend/android/build/
+.idea/
+*/.idea/
+**/.idea/
+.kotlin/
+*/.kotlin/
+**/.kotlin/
+local.properties
+*/local.properties
+**/local.properties
+*.iml
+*.hprof
+*.run.xml
+.cxx/
+*/.cxx/
+**/.cxx/
+
+# Keystores & Signing
+*.keystore
+!debug.keystore
+*.jks
+
+# iOS
+Pods/
+*/Pods/
+DerivedData/
+*.xcworkspace
+*.xcuserstate
+xcuserdata/
+*.ipa
+**/.xcode.env.local
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing & Coverage
+coverage/
+*/coverage/
+
+# OS Files
+.DS_Store
+Thumbs.db
+Desktop.ini
